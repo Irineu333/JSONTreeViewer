@@ -3,7 +3,6 @@ package com.neo.json
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -12,6 +11,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -39,13 +39,38 @@ fun JsonViewerPreview() {
 
     json.put("languages", languages)
 
+    val friends = JSONArray()
+
+    friends.put(
+        JSONObject().apply {
+            put("name", "Carlos")
+            put("languages", JSONArray().apply {
+                put("Java")
+            })
+        }
+    )
+
+    friends.put(
+        JSONObject().apply {
+            put("name", "Kleber")
+            put("languages", JSONArray().apply {
+                put("Java")
+                put("JavaScript")
+            })
+        }
+    )
+
+    json.put("mansões", JSONArray())
+
+    json.put("friends", friends)
+
     JsonObject("origin", json = json)
 }
 
 @Composable
 fun JsonObject(origin: Any, json: Any) {
 
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(true) }
 
     val children = when (json) {
         is JSONArray -> {
@@ -102,26 +127,78 @@ fun JsonObject(origin: Any, json: Any) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        if (expanded) {
-            for ((index, child) in children.withIndex()) {
+        if (children.isNotEmpty()) {
+            if (expanded) {
 
-                val isLastIndex = index == children.size - 1
+                for ((index, child) in children.withIndex()) {
 
-                Row(
-                    modifier = Modifier.height(IntrinsicSize.Min)
-                ) {
+                    val isLastIndex = index == children.size - 1
+
+                    Row(
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .drawBehind {
+                                fun getVerticalLine() =
+                                    if (isLastIndex) 15.dp.toPx() else size.height
+
+                                drawLine(
+                                    color = Color.Black,
+                                    start = Offset(
+                                        x = 15.dp.toPx(),
+                                        y = 0f
+                                    ),
+                                    end = Offset(
+                                        x = 15.dp.toPx(),
+                                        y = getVerticalLine()
+                                    ),
+                                    strokeWidth = 1.dp.toPx(),
+                                    cap = StrokeCap.Round
+                                )
+
+                                drawLine(
+                                    color = Color.Black,
+                                    start = Offset(
+                                        x = 15.dp.toPx(),
+                                        y = 15.dp.toPx()
+                                    ),
+                                    end = Offset(
+                                        x = 30.dp.toPx(),
+                                        y = 15.dp.toPx()
+                                    ),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            },
+                    ) {
+                        Spacer(
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                        )
+
+                        when (child.second) {
+                            is JSONArray, is JSONObject -> {
+                                JsonObject(child.first, child.second)
+                            }
+
+                            else -> {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                JsonValue(child.first, child.second)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Row {
                     Canvas(
                         modifier = Modifier
                             .width(30.dp)
-                            .fillMaxHeight()
+                            .height(30.dp)
                     ) {
-
-                        fun getVerticalLine() = if (isLastIndex) 15.dp.toPx() else size.height
 
                         drawLine(
                             color = Color.Black,
                             start = center.copy(y = 0f),
-                            end = center.copy(y = getVerticalLine()),
+                            end = center.copy(y = size.height / 2),
                             strokeWidth = 1.dp.toPx(),
                             cap = StrokeCap.Round
                         )
@@ -129,56 +206,27 @@ fun JsonObject(origin: Any, json: Any) {
                         drawLine(
                             color = Color.Black,
                             start = center.copy(y = 15.dp.toPx()),
-                            end = Offset(x = size.width, y = 15.dp.toPx()),
+                            end = Offset(x = size.width, y = size.height / 2),
                             strokeWidth = 1.dp.toPx()
                         )
                     }
 
-                    when (child.second) {
-                        is JSONArray, is JSONObject -> {
-                            JsonObject(child.first, child.second)
-                        }
-
-                        else -> {
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            JsonValue(child.first, child.second)
-                        }
-                    }
-                }
-            }
-        } else {
-            Row {
-                Canvas(
-                    modifier = Modifier
-                        .width(30.dp)
-                        .height(30.dp)
-                ) {
-
-                    drawLine(
-                        color = Color.Black,
-                        start = center.copy(y = 0f),
-                        end = center.copy(y = size.height / 2),
-                        strokeWidth = 1.dp.toPx(),
-                        cap = StrokeCap.Round
-                    )
-
-                    drawLine(
-                        color = Color.Black,
-                        start = center.copy(y = 15.dp.toPx()),
-                        end = Offset(x = size.width, y = size.height / 2),
-                        strokeWidth = 1.dp.toPx()
+                    Text(
+                        text = "{...}",
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
-
-                Text(
-                    text = "{...}",
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
             }
         }
+    }
+}
+
+fun count(second: Any): Int {
+    return when (second) {
+        is JSONObject -> second.children().size
+        is JSONArray -> second.children().size
+        else -> 1
     }
 }
 
