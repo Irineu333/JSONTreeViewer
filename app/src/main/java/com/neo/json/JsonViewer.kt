@@ -214,7 +214,11 @@ fun JsonObject(origin: Any, json: Any) {
                     Text(
                         text = "{...}",
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .clickable {
+                                expanded = true
+                            }
                     )
                 }
             }
