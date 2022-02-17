@@ -9,15 +9,6 @@ fun MainScreen() {
 
 }
 
-
-
-
-
-
-
-
-
-
 @Composable
 @Preview(
     showSystemUi = true,

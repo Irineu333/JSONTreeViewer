@@ -3,12 +3,13 @@ package com.neo.json
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -44,6 +45,8 @@ fun JsonViewerPreview() {
 @Composable
 fun JsonObject(origin: Any, json: Any) {
 
+    var expanded by remember { mutableStateOf(false) }
+
     val children = when (json) {
         is JSONArray -> {
             json.children()
@@ -70,17 +73,21 @@ fun JsonObject(origin: Any, json: Any) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            IconButton(
-                modifier = Modifier.size(30.dp),
-                onClick = {
-                    //
+            if (children.isNotEmpty()) {
+                IconButton(
+                    modifier = Modifier.size(30.dp),
+                    onClick = {
+                        expanded = !expanded
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        modifier = Modifier.padding(6.dp)
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    modifier = Modifier.padding(6.dp)
-                )
+            } else {
+                Spacer(modifier = Modifier.width(8.dp))
             }
 
             when (json) {
@@ -95,25 +102,64 @@ fun JsonObject(origin: Any, json: Any) {
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        for ((index, child) in children.withIndex()) {
+        if (expanded) {
+            for ((index, child) in children.withIndex()) {
 
-            val isLastIndex = index == children.size - 1
+                val isLastIndex = index == children.size - 1
 
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min)
-            ) {
+                Row(
+                    modifier = Modifier.height(IntrinsicSize.Min)
+                ) {
+                    Canvas(
+                        modifier = Modifier
+                            .width(30.dp)
+                            .fillMaxHeight()
+                    ) {
+
+                        fun getVerticalLine() = if (isLastIndex) 15.dp.toPx() else size.height
+
+                        drawLine(
+                            color = Color.Black,
+                            start = center.copy(y = 0f),
+                            end = center.copy(y = getVerticalLine()),
+                            strokeWidth = 1.dp.toPx(),
+                            cap = StrokeCap.Round
+                        )
+
+                        drawLine(
+                            color = Color.Black,
+                            start = center.copy(y = 15.dp.toPx()),
+                            end = Offset(x = size.width, y = 15.dp.toPx()),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
+
+                    when (child.second) {
+                        is JSONArray, is JSONObject -> {
+                            JsonObject(child.first, child.second)
+                        }
+
+                        else -> {
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            JsonValue(child.first, child.second)
+                        }
+                    }
+                }
+            }
+        } else {
+            Row {
                 Canvas(
                     modifier = Modifier
                         .width(30.dp)
-                        .fillMaxHeight()
+                        .height(30.dp)
                 ) {
-
-                    fun getVerticalLine() = if (isLastIndex) 15.dp.toPx() else size.height
 
                     drawLine(
                         color = Color.Black,
                         start = center.copy(y = 0f),
-                        end = center.copy(y = getVerticalLine()),
+                        end = center.copy(y = size.height / 2),
                         strokeWidth = 1.dp.toPx(),
                         cap = StrokeCap.Round
                     )
@@ -121,23 +167,16 @@ fun JsonObject(origin: Any, json: Any) {
                     drawLine(
                         color = Color.Black,
                         start = center.copy(y = 15.dp.toPx()),
-                        end = Offset(x = size.width, y = 15.dp.toPx()),
+                        end = Offset(x = size.width, y = size.height / 2),
                         strokeWidth = 1.dp.toPx()
                     )
                 }
 
-                when (child.second) {
-                    is JSONArray, is JSONObject -> {
-                        JsonObject(child.first, child.second)
-                    }
-
-                    else -> {
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        JsonValue(child.first, child.second)
-                    }
-                }
+                Text(
+                    text = "{...}",
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
     }

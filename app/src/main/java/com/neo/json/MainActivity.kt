@@ -74,6 +74,8 @@ private fun Main() {
         }
     )
 
+    json.put("mansões", JSONArray())
+
     json.put("friends", friends)
 
     JsonObject("origin", json = json)
