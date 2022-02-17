@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,27 +99,29 @@ fun JsonObject(origin: Any, json: Any) {
 
             val isLastIndex = index == children.size - 1
 
-            Row {
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Min)
+            ) {
                 Canvas(
                     modifier = Modifier
                         .width(30.dp)
-                        .height(30.dp)
+                        .fillMaxHeight()
                 ) {
 
-                    fun getVerticalLine() = if (isLastIndex) 15 else 31
+                    fun getVerticalLine() = if (isLastIndex) 15.dp.toPx() else size.height
 
                     drawLine(
                         color = Color.Black,
                         start = center.copy(y = 0f),
-                        end = center.copy(y = getVerticalLine().dp.toPx()),
+                        end = center.copy(y = getVerticalLine()),
                         strokeWidth = 1.dp.toPx(),
                         cap = StrokeCap.Round
                     )
 
                     drawLine(
                         color = Color.Black,
-                        start = center,
-                        end = center.copy(x = 31.dp.toPx()),
+                        start = center.copy(y = 15.dp.toPx()),
+                        end = Offset(x = size.width, y = 15.dp.toPx()),
                         strokeWidth = 1.dp.toPx()
                     )
                 }
@@ -149,7 +152,7 @@ fun JsonValue(key: Any, value: Any) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        when(value) {
+        when (value) {
             is String -> {
                 Text(text = "$key : ${value.type} = \"$value\"", fontSize = 18.sp)
             }

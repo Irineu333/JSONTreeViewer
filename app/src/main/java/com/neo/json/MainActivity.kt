@@ -64,6 +64,16 @@ private fun Main() {
         }
     )
 
+    friends.put(
+        JSONObject().apply {
+            put("name", "Kleber")
+            put("languages", JSONArray().apply {
+                put("Java")
+                put("JavaScript")
+            })
+        }
+    )
+
     json.put("friends", friends)
 
     JsonObject("origin", json = json)
