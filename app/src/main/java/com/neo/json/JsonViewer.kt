@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -68,9 +67,9 @@ fun JsonViewerPreview() {
 }
 
 @Composable
-fun JsonObject(origin: Any, json: Any) {
+fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
 
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(defaultExpanded) }
 
     val children = when (json) {
         is JSONArray -> {
@@ -99,11 +98,12 @@ fun JsonObject(origin: Any, json: Any) {
         ) {
 
             if (children.isNotEmpty()) {
-                IconButton(
-                    modifier = Modifier.size(30.dp),
-                    onClick = {
-                        expanded = !expanded
-                    }
+                Row(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable {
+                            expanded = !expanded
+                        }
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
@@ -181,7 +181,6 @@ fun JsonObject(origin: Any, json: Any) {
                             }
 
                             else -> {
-                                Spacer(modifier = Modifier.width(8.dp))
                                 JsonValue(child.first, child.second)
                             }
                         }
@@ -211,26 +210,34 @@ fun JsonObject(origin: Any, json: Any) {
                         )
                     }
 
-                    Text(
-                        text = "{...}",
-                        fontSize = 18.sp,
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable {
-                                expanded = true
-                            }
-                    )
+                    when (json) {
+                        is JSONObject -> {
+                            Text(
+                                text = " {...} ",
+                                fontSize = 18.sp,
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .clickable {
+                                        expanded = true
+                                    }
+                            )
+                        }
+
+                        is JSONArray -> {
+                            Text(
+                                text = " [...] ",
+                                fontSize = 18.sp,
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .clickable {
+                                        expanded = true
+                                    }
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-fun count(second: Any): Int {
-    return when (second) {
-        is JSONObject -> second.children().size
-        is JSONArray -> second.children().size
-        else -> 1
     }
 }
 
@@ -239,9 +246,14 @@ fun JsonValue(key: Any, value: Any) {
     Row(
         modifier = Modifier
             .height(30.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                //
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
+
+        Spacer(modifier = Modifier.width(8.dp))
 
         when (value) {
             is String -> {
