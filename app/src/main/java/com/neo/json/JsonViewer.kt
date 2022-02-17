@@ -3,7 +3,6 @@ package com.neo.json
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -42,7 +41,7 @@ fun JsonViewerPreview() {
 }
 
 @Composable
-fun JsonObject(origin: String, json: Any) {
+fun JsonObject(origin: Any, json: Any) {
 
     val children = when (json) {
         is JSONArray -> {
@@ -83,22 +82,12 @@ fun JsonObject(origin: String, json: Any) {
                 )
             }
 
-            Text(text = origin, fontSize = 18.sp)
-
-            Divider(
-                color = Color.Black,
-                modifier = Modifier
-                    .fillMaxHeight(0.5f)
-                    .padding(horizontal = 8.dp)
-                    .width(1.dp)
-            )
-
             when (json) {
                 is JSONObject -> {
-                    Text(text = "${json.type} {${children.size}}", fontSize = 18.sp)
+                    Text(text = "$origin : ${json.type} {${children.size}}", fontSize = 18.sp)
                 }
                 is JSONArray -> {
-                    Text(text = "${json.type} [${children.size}]", fontSize = 18.sp)
+                    Text(text = "$origin : ${json.type} [${children.size}]", fontSize = 18.sp)
                 }
             }
 
@@ -152,7 +141,7 @@ fun JsonObject(origin: String, json: Any) {
 }
 
 @Composable
-fun JsonValue(key: String, child: Any) {
+fun JsonValue(key: Any, value: Any) {
     Row(
         modifier = Modifier
             .height(30.dp)
@@ -160,17 +149,15 @@ fun JsonValue(key: String, child: Any) {
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Text(text = key, fontSize = 18.sp)
+        when(value) {
+            is String -> {
+                Text(text = "$key : ${value.type} = \"$value\"", fontSize = 18.sp)
+            }
 
-        Divider(
-            color = Color.Black,
-            modifier = Modifier
-                .fillMaxHeight(0.5f)
-                .padding(horizontal = 8.dp)
-                .width(1.dp)
-        )
-
-        Text(text = "${child.type} = $child", fontSize = 18.sp)
+            else -> {
+                Text(text = "$key : ${value.type} = $value", fontSize = 18.sp)
+            }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -199,11 +186,11 @@ private fun JSONObject.children(): List<Pair<String, Any>> {
     return children
 }
 
-private fun JSONArray.children(): List<Pair<String, Any>> {
-    val children = mutableListOf<Pair<String, Any>>()
+private fun JSONArray.children(): List<Pair<Int, Any>> {
+    val children = mutableListOf<Pair<Int, Any>>()
 
     for (index in 0 until length()) {
-        children.add(Pair("$index", this[index]))
+        children.add(Pair(index, this[index]))
     }
 
     return children
