@@ -24,46 +24,19 @@ import org.json.JSONObject
 @Composable
 fun JsonViewerPreview() {
 
-    val json = JSONObject()
+    val json = JSONObject().apply {
+        put("name", "Irineu")
+        put("years", 23)
+        put("dev", true)
+        put("height", 1.73)
 
-    json.put("nome", "Irineu")
-    json.put("idade", 23)
-    json.put("programador", true)
-    json.put("altura", 1.73)
+        put("languages", JSONArray().apply {
+            put("Java")
+            put("Kotlin")
+        })
+    }
 
-    val languages = JSONArray()
-
-    languages.put("Java")
-    languages.put("Kotlin")
-
-    json.put("languages", languages)
-
-    val friends = JSONArray()
-
-    friends.put(
-        JSONObject().apply {
-            put("name", "Carlos")
-            put("languages", JSONArray().apply {
-                put("Java")
-            })
-        }
-    )
-
-    friends.put(
-        JSONObject().apply {
-            put("name", "Kleber")
-            put("languages", JSONArray().apply {
-                put("Java")
-                put("JavaScript")
-            })
-        }
-    )
-
-    json.put("mansões", JSONArray())
-
-    json.put("friends", friends)
-
-    JsonObject("origin", json = json)
+    JsonObject("origin", json = json, true)
 }
 
 @Composable
@@ -92,7 +65,7 @@ fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
                 .height(30.dp)
                 .fillMaxWidth()
                 .clickable {
-                    //
+                    expanded = !expanded
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -177,11 +150,18 @@ fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
 
                         when (child.second) {
                             is JSONArray, is JSONObject -> {
-                                JsonObject(child.first, child.second)
+                                JsonObject(
+                                    origin = child.first,
+                                    json = child.second,
+                                    defaultExpanded = defaultExpanded
+                                )
                             }
 
                             else -> {
-                                JsonValue(child.first, child.second)
+                                JsonValue(
+                                    origin = child.first,
+                                    value = child.second
+                                )
                             }
                         }
                     }
@@ -216,10 +196,9 @@ fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
                                 text = " {...} ",
                                 fontSize = 18.sp,
                                 modifier = Modifier
-                                    .padding(horizontal = 8.dp)
                                     .clickable {
                                         expanded = true
-                                    }
+                                    }.padding(horizontal = 2.dp, vertical = 1.dp)
                             )
                         }
 
@@ -228,10 +207,9 @@ fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
                                 text = " [...] ",
                                 fontSize = 18.sp,
                                 modifier = Modifier
-                                    .padding(horizontal = 8.dp)
                                     .clickable {
                                         expanded = true
-                                    }
+                                    }.padding(horizontal = 2.dp, vertical = 1.dp)
                             )
                         }
                     }
@@ -242,7 +220,7 @@ fun JsonObject(origin: Any, json: Any, defaultExpanded: Boolean = false) {
 }
 
 @Composable
-fun JsonValue(key: Any, value: Any) {
+fun JsonValue(origin: Any, value: Any) {
     Row(
         modifier = Modifier
             .height(30.dp)
@@ -257,11 +235,11 @@ fun JsonValue(key: Any, value: Any) {
 
         when (value) {
             is String -> {
-                Text(text = "$key : ${value.type} = \"$value\"", fontSize = 18.sp)
+                Text(text = "$origin : ${value.type} = \"$value\"", fontSize = 18.sp)
             }
 
             else -> {
-                Text(text = "$key : ${value.type} = $value", fontSize = 18.sp)
+                Text(text = "$origin : ${value.type} = $value", fontSize = 18.sp)
             }
         }
 
@@ -286,7 +264,7 @@ private fun JSONObject.children(): List<Pair<String, Any>> {
     val children = mutableListOf<Pair<String, Any>>()
 
     for (key in this.keys()) {
-        children.add(Pair(key, this[key]))
+        runCatching { children.add(Pair(key, this[key])) }
     }
 
     return children
@@ -296,7 +274,7 @@ private fun JSONArray.children(): List<Pair<Int, Any>> {
     val children = mutableListOf<Pair<Int, Any>>()
 
     for (index in 0 until length()) {
-        children.add(Pair(index, this[index]))
+        runCatching { children.add(Pair(index, this[index])) }
     }
 
     return children
