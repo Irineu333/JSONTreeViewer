@@ -1,4 +1,4 @@
-package com.neo.json
+package com.neo.jsonviewer
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,8 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
-import com.neo.json.ui.theme.NeoJSONTheme
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.neo.jsonviewer.ui.theme.NeoJSONTheme
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 

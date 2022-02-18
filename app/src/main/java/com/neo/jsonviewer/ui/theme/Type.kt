@@ -1,4 +1,4 @@
-package com.neo.json.ui.theme
+package com.neo.jsonviewer.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

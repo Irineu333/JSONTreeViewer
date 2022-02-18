@@ -1,4 +1,4 @@
-package com.neo.json
+package com.neo.jsonviewer
 
 import org.junit.Test
 

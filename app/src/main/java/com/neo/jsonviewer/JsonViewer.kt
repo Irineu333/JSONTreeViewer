@@ -1,4 +1,4 @@
-package com.neo.json
+package com.neo.jsonviewer
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
