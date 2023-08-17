@@ -1,5 +1,5 @@
 # JsonViewer
 Visualizador de JSON usando JetPack Compose.
 
-# Deprecated
-Projeto continuado no repositório [NeoJSON](https://github.com/Irineu333/NeoJson).
+# Neo Json
+Projeto continuado no repositório [NeoJson](https://github.com/Irineu333/NeoJson).
