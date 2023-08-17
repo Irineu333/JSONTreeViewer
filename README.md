@@ -1,4 +1,4 @@
-# NeoJSON-Concept1
+# JsonViewer
 Visualizador de JSON usando JetPack Compose.
 
 # Neo JSON
